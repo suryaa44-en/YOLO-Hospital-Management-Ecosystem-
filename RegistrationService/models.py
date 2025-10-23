@@ -27,8 +27,8 @@ def generate_patient_uid():
 
 class Patient(SQLModel, table=True):
     __tablename__ = "patients"
-    id: Optional[int] = Field(default=None, primary_key=True)
-    patient_uid: int = Field(default_factory=generate_patient_uid, unique=True, index=True)
+    id: int = Field(primary_key=True)
+    patient_uid: int = Field(unique=True, index=True)
     first_name: str
     last_name: str
     dob: date

@@ -10,6 +10,7 @@ from jose import JWTError, jwt
 from security import verify_password, create_access_token, get_password_hash, SECRET_KEY, ALGORITHM
 from datetime import timedelta
 from pydantic import BaseModel
+from models import generate_patient_uid
 
 
 class Token(BaseModel):
@@ -86,6 +87,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 @app.post("/api/v1/patients/register", response_model=Patient)
 def register_patient(patient: Patient, session: Session = Depends(get_session), current_user: User = Depends(get_current_user)):
+    patient.patient_uid = generate_patient_uid()
     session.add(patient)
     session.commit()
     session.refresh(patient)

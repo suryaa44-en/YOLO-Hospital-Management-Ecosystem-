@@ -8,51 +8,68 @@
 </head>
 <body>
     <header class="header">
-        <h1>Reception Dashboard</h1>
-        <button id="logout-btn">Logout</button>
+        <div class="branding">
+            <div class="logo-badge" aria-hidden="true">SRM</div>
+            <h1>SRM Medical Trichy</h1>
+        </div>
     </header>
-    <div class="container">
-        <div id="notification-area" class="notification"></div>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Quick Actions</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-link active" data-target="register-section">Register New Patient</button>
+                <button class="nav-link" data-target="appointment-section">Book an Appointment</button>
+                <button class="nav-link" data-target="status-section">Check Appointment Status</button>
+                <button class="nav-link" data-target="log-section">API Response Log</button>
+            </nav>
+            <button id="logout-btn" class="sidebar-logout">Logout</button>
+        </aside>
 
-        <div class="form-container">
-            <h2>Register New Patient</h2>
-            <form id="register-form">
-                <input type="text" id="first_name" placeholder="First Name" required>
-                <input type="text" id="last_name" placeholder="Last Name" required>
-                <input type="date" id="dob" required>
-                <input type="text" id="contact_number" placeholder="Contact Number" required>
-                <input type="text" id="address" placeholder="Address" required>
-                <button type="submit">Register Patient</button>
-            </form>
-        </div>
+        <main class="main-content">
+            <div id="notification-area" class="notification"></div>
 
-        <div class="form-container">
-            <h2>Book an Appointment</h2>
-            <form id="appointment-form">
-                <input type="text" id="patient_uid" placeholder="Patient ID (auto-filled)" required>
-                <input type="text" id="doctor_id" placeholder="Doctor ID" required>
-                <input type="datetime-local" id="appointment_time" required>
-                <select id="status" required>
-                    <option value="PENDING">Pending</option>
-                    <option value="CONFIRMED">Confirmed</option>
-                    <option value="WALK_IN">Walk-In</option>
-                </select>
-                <button type="submit">Book Appointment</button>
-            </form>
-        </div>
+            <section id="register-section" class="content-section active">
+                <h2>Register New Patient</h2>
+                <form id="register-form">
+                    <input type="text" id="first_name" placeholder="First Name" required>
+                    <input type="text" id="last_name" placeholder="Last Name" required>
+                    <input type="date" id="dob" required>
+                    <input type="text" id="contact_number" placeholder="Contact Number" required>
+                    <input type="text" id="address" placeholder="Address" required>
+                    <button type="submit">Register Patient</button>
+                </form>
+            </section>
 
-        <div class="form-container">
-            <h2>Check Appointment Status</h2>
-            <form id="status-form">
-                <input type="text" id="appointment_id_check" placeholder="Enter Appointment ID" required>
-                <button type="submit">Check Status</button>
-            </form>
-        </div>
+            <section id="appointment-section" class="content-section">
+                <h2>Book an Appointment</h2>
+                <form id="appointment-form">
+                    <input type="text" id="patient_uid" placeholder="Patient ID (auto-filled)" required>
+                    <input type="text" id="doctor_id" placeholder="Doctor ID" required>
+                    <input type="datetime-local" id="appointment_time" required>
+                    <select id="status" required>
+                        <option value="PENDING">Pending</option>
+                        <option value="CONFIRMED">Confirmed</option>
+                        <option value="WALK_IN">Walk-In</option>
+                    </select>
+                    <button type="submit">Book Appointment</button>
+                </form>
+            </section>
 
-        <div class="results-container">
-            <h2>API Response Log</h2>
-            <pre id="response-area">API responses will appear here...</pre>
-        </div>
+            <section id="status-section" class="content-section">
+                <h2>Check Appointment Status</h2>
+                <form id="status-form">
+                    <input type="text" id="appointment_id_check" placeholder="Enter Appointment ID" required>
+                    <button type="submit">Check Status</button>
+                </form>
+            </section>
+
+            <section id="log-section" class="content-section">
+                <h2>API Response Log</h2>
+                <pre id="response-area">API responses will appear here...</pre>
+            </section>
+        </main>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="/static/script.js"></script>

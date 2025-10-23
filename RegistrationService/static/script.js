@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const responseArea = document.getElementById('response-area');
     const notificationArea = document.getElementById('notification-area');
     const logoutBtn = document.getElementById('logout-btn');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const contentSections = document.querySelectorAll('.content-section');
 
     const { jsPDF } = window.jspdf;
 
@@ -18,6 +20,32 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('hms_token');
         window.location.href = '/';
     });
+
+    const activateSection = (targetId) => {
+        contentSections.forEach((section) => {
+            section.classList.toggle('active', section.id === targetId);
+        });
+    };
+
+    const activateNavLink = (activeLink) => {
+        navLinks.forEach((link) => {
+            link.classList.toggle('active', link === activeLink);
+        });
+    };
+
+    navLinks.forEach((link) => {
+        link.addEventListener('click', () => {
+            const targetId = link.getAttribute('data-target');
+            activateSection(targetId);
+            activateNavLink(link);
+        });
+    });
+
+    activateSection('register-section');
+    const defaultNavLink = document.querySelector('.nav-link[data-target="register-section"]');
+    if (defaultNavLink) {
+        activateNavLink(defaultNavLink);
+    }
 
     const showNotification = (message, type) => {
         notificationArea.textContent = message;
