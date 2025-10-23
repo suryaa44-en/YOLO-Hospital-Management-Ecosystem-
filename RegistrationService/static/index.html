@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMS - Digital Registration & Appointments</title>
+    <title>Reception Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <header class="header">
+        <h1>Reception Dashboard</h1>
+        <button id="logout-btn">Logout</button>
+    </header>
     <div class="container">
-        <h1>HMS - Digital Registration & Appointments</h1>
-
         <div id="notification-area" class="notification"></div>
 
         <div class="form-container">
@@ -27,7 +29,7 @@
         <div class="form-container">
             <h2>Book an Appointment</h2>
             <form id="appointment-form">
-                <input type="text" id="patient_id" placeholder="Patient ID (auto-filled on registration)" required>
+                <input type="text" id="patient_uid" placeholder="Patient ID (auto-filled)" required>
                 <input type="text" id="doctor_id" placeholder="Doctor ID" required>
                 <input type="datetime-local" id="appointment_time" required>
                 <select id="status" required>
@@ -52,6 +54,7 @@
             <pre id="response-area">API responses will appear here...</pre>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="/static/script.js"></script>
 </body>
 </html>

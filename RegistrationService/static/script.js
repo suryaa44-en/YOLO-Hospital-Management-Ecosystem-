@@ -1,9 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('hms_token');
+    if (!token) {
+        window.location.href = '/';
+        return;
+    }
+
     const registerForm = document.getElementById('register-form');
     const appointmentForm = document.getElementById('appointment-form');
     const statusForm = document.getElementById('status-form');
     const responseArea = document.getElementById('response-area');
     const notificationArea = document.getElementById('notification-area');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    const { jsPDF } = window.jspdf;
+
+    logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('hms_token');
+        window.location.href = '/';
+    });
 
     const showNotification = (message, type) => {
         notificationArea.textContent = message;
@@ -12,6 +26,19 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             notificationArea.style.display = 'none';
         }, 5000);
+    };
+
+    const authenticatedFetch = async (url, options = {}) => {
+        const headers = {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`
+        };
+        const response = await fetch(url, { ...options, headers });
+        if (response.status === 401) {
+            localStorage.removeItem('hms_token');
+            window.location.href = '/';
+        }
+        return response;
     };
 
     registerForm.addEventListener('submit', async function (e) {
@@ -25,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch('/api/v1/patients/register', {
+            const response = await authenticatedFetch('/api/v1/patients/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(patient),
@@ -35,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 showNotification('Patient registered successfully!', 'success');
-                document.getElementById('patient_id').value = result.id;
+                document.getElementById('patient_uid').value = result.patient_uid;
                 registerForm.reset();
             } else {
                 showNotification(`Error: ${result.detail || 'Unknown error'}`, 'error');
@@ -49,14 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
     appointmentForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         const appointment = {
-            patient_id: document.getElementById('patient_id').value,
+            patient_uid: parseInt(document.getElementById('patient_uid').value),
             doctor_id: document.getElementById('doctor_id').value,
             appointment_time: document.getElementById('appointment_time').value,
             status: document.getElementById('status').value,
         };
 
         try {
-            const response = await fetch('/api/v1/appointments/book', {
+            const response = await authenticatedFetch('/api/v1/appointments/book', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(appointment),
@@ -66,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 showNotification('Appointment booked successfully!', 'success');
+                generateAndDownloadSlip(result);
                 appointmentForm.reset();
             } else {
                 showNotification(`Error: ${result.detail || 'Unknown error'}`, 'error');
@@ -86,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`/api/v1/appointments/${appointmentId}`);
+            const response = await authenticatedFetch(`/api/v1/appointments/${appointmentId}`);
             const result = await response.json();
             responseArea.textContent = JSON.stringify(result, null, 2);
 
@@ -101,4 +129,21 @@ document.addEventListener('DOMContentLoaded', () => {
             responseArea.textContent = `Error: ${error.message}`;
         }
     });
+
+    function generateAndDownloadSlip(appointment) {
+        const doc = new jsPDF();
+
+        doc.setFontSize(22);
+        doc.text("Appointment Slip", 105, 20, null, null, "center");
+
+        doc.setFontSize(12);
+        doc.text(`Appointment ID: ${appointment.id}`, 20, 40);
+        doc.text(`Patient ID: ${appointment.patient_uid}`, 20, 50);
+        doc.text(`Doctor ID: ${appointment.doctor_id}`, 20, 60);
+        doc.text(`Time: ${new Date(appointment.appointment_time).toLocaleString()}`, 20, 70);
+        doc.text(`Status: ${appointment.status}`, 20, 80);
+        doc.text(`Queue Token: ${appointment.queue_token}`, 20, 90);
+
+        doc.save(`appointment_${appointment.id}.pdf`);
+    }
 });
