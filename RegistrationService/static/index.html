@@ -5,12 +5,309 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reception Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #2c3e50;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #34495e;
+            color: white;
+            padding: 2rem 0;
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid #4a5f7a;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-link {
+            display: block;
+            width: 100%;
+            padding: 12px 1.5rem;
+            color: #bdc3c7;
+            text-decoration: none;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .sidebar-logout {
+            position: absolute;
+            bottom: 2rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-logout:hover {
+            background: #c0392b;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .content-section h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #34495e;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 73, 94, 0.1);
+        }
+
+        .btn {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #34495e;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: #2c3e50;
+        }
+
+        .btn-primary:hover {
+            background: #34495e;
+        }
+
+        .notification {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .notification.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .notification.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        #response-area {
+            background: #f8f9fa;
+            border: 1px solid #e1e8ed;
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #2c3e50;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 4px solid #34495e;
+        }
+
+        .stat-card h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .stat-card p {
+            color: #7f8c8d;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .patients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .patient-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+
+        .patient-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .patient-card p {
+            color: #7f8c8d;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: relative;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <header class="header">
         <div class="branding">
             <div class="logo-badge" aria-hidden="true">SRM</div>
             <h1>SRM Medical Trichy</h1>
+        </div>
+        <div class="user-info">
+            <span id="user-name">Welcome, User</span>
+            <button id="logout-btn" class="logout-btn">Logout</button>
         </div>
     </header>
     <div class="dashboard-container">
@@ -22,6 +319,10 @@
                 <button class="nav-link active" data-target="register-section">Register New Patient</button>
                 <button class="nav-link" data-target="appointment-section">Book an Appointment</button>
                 <button class="nav-link" data-target="status-section">Check Appointment Status</button>
+                <button class="nav-link" data-target="vitals-section">Record Patient Vitals</button>
+                <button class="nav-link" data-target="queue-section">Queue Management</button>
+                <button class="nav-link" data-target="patients-section">View Patients</button>
+                <button class="nav-link" data-target="dashboard-section">Dashboard Stats</button>
                 <button class="nav-link" data-target="log-section">API Response Log</button>
             </nav>
             <button id="logout-btn" class="sidebar-logout">Logout</button>
@@ -63,6 +364,25 @@
                     <input type="text" id="appointment_id_check" placeholder="Enter Appointment ID" required>
                     <button type="submit">Check Status</button>
                 </form>
+            </section>
+
+            <section id="vitals-section" class="content-section">
+                <h2>Record Patient Vitals</h2>
+                <p>Use the dedicated vitals recording interface for better mobile/tablet experience.</p>
+                <a href="/static/vitals.html" class="btn btn-primary" target="_blank">Open Vitals Recording</a>
+            </section>
+
+            <section id="queue-section" class="content-section">
+                <h2>Queue Management</h2>
+                <p>Manage patient queues and track appointment status.</p>
+                <a href="/static/queue.html" class="btn btn-primary" target="_blank">Open Queue Management</a>
+            </section>
+
+            <section id="patients-section" class="content-section">
+                <h2>Registered Patients</h2>
+                <div id="patients-container">
+                    <p>Loading patients...</p>
+                </div>
             </section>
 
             <section id="log-section" class="content-section">

@@ -3,67 +3,367 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HMS Login</title>
-    <link rel="stylesheet" href="/static/login.css">
+    <title>Hospital Management System - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('/static/srm.png') center/cover no-repeat;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            display: flex;
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            min-height: 500px;
+        }
+
+        .login-image {
+            flex: 1;
+            background: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(52, 73, 94, 0.9), rgba(44, 62, 80, 0.9));
+            opacity: 0.9;
+        }
+
+        .login-image-content {
+            text-align: center;
+            color: white;
+            z-index: 2;
+            position: relative;
+        }
+
+        .login-image h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            font-weight: 300;
+            color: #ecf0f1;
+        }
+
+        .login-image p {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            color: #bdc3c7;
+        }
+
+        .logo-container {
+            width: 200px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            border: 2px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo-container img {
+            max-width: 180px;
+            max-height: 80px;
+            object-fit: contain;
+        }
+
+        .login-form-section {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .login-header p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .login-form {
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #34495e;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 73, 94, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .login-btn:hover {
+            background: #34495e;
+            transform: translateY(-1px);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 1rem;
+            padding: 10px;
+            background: #fdf2f2;
+            border-radius: 6px;
+            border: 1px solid #fecaca;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .role-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            border-left: 4px solid #34495e;
+        }
+
+        .role-info h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .role-info p {
+            color: #7f8c8d;
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .credentials-info {
+            background: #e8f4fd;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            border-left: 4px solid #3498db;
+        }
+
+        .credentials-info h4 {
+            color: #2980b9;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .credentials-info p {
+            color: #5d6d7e;
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                margin: 1rem;
+                max-width: none;
+            }
+            
+            .login-image {
+                min-height: 200px;
+            }
+            
+            .login-form-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-image-side">
-            <img src="C:\Users\Shree Harish V\Desktop\MedAIthon\YOLO-Hospital-Management-Ecosystem-\RegistrationService\static\srm.png" alt="image">
+        <div class="login-image">
+            <div class="login-image-content">
+                <div class="logo-container">
+                    <img src="/static/srm-trichylogo-300x150.jpg" alt="SRM Trichy Logo">
+                </div>
+                <h1>SRM Medical</h1>
+                <p>Hospital Management System</p>
+            </div>
         </div>
-        <div class="login-form-side">
-            <div class="login-box">
-                <h1>HMS Portal</h1>
-                <p class="subtitle">Welcome back! Please log in to your account.</p>
-                <form id="login-form">
-                    <div class="input-group">
+        
+        <div class="login-form-section">
+            <div class="login-header">
+                <h2>Welcome Back</h2>
+                <p>Sign in to access your dashboard</p>
+            </div>
+            
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                
+                <div class="form-group">
                     <label for="role">Select Role</label>
-                    <select id="role" required>
-                        <option value="RECEPTION">Reception</option>
-                        <option value="DOCTOR" disabled>Doctor (Not Implemented)</option>
-                        <option value="NURSE" disabled>Nurse (Not Implemented)</option>
+                    <select id="role" name="role" required>
+                        <option value="">Choose your role...</option>
+                        <option value="RECEPTION">Reception Staff</option>
+                        <option value="NURSE">Nurse</option>
+                        <option value="DOCTOR">Doctor</option>
                     </select>
                 </div>
-                <div class="input-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" value="reception" required>
-                </div>
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" value="password" required>
-                </div>
-                <button type="submit">Login</button>
-                <p id="error-message" class="error-message"></p>
+                
+                <button type="submit" class="login-btn">Sign In</button>
             </form>
+            
+            <div class="credentials-info">
+                <h4>Demo Credentials:</h4>
+                <p><strong>Reception:</strong> username: reception, password: reception123</p>
+                <p><strong>Nurse:</strong> username: nurse, password: nurse123</p>
+                <p><strong>Doctor:</strong> username: doctor, password: doctor123</p>
+            </div>
+            
+            <div class="role-info">
+                <h4>Role Information:</h4>
+                <p><strong>Reception:</strong> Patient registration, appointment booking</p>
+                <p><strong>Nurse:</strong> Vitals recording, patient care</p>
+                <p><strong>Doctor:</strong> Patient consultation, medical records</p>
+            </div>
+            
+            <div id="error-message" class="error-message"></div>
         </div>
     </div>
+    
     <script>
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
             const errorMessage = document.getElementById('error-message');
 
-            const formData = new URLSearchParams();
-            formData.append('username', username);
-            formData.append('password', password);
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const role = document.getElementById('role').value;
 
-            try {
-                const response = await fetch('/token', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    localStorage.setItem('hms_token', data.access_token);
-                    window.location.href = '/dashboard';
-                } else {
-                    const errorData = await response.json();
-                    errorMessage.textContent = errorData.detail || 'Login failed.';
+                if (!username || !password || !role) {
+                    showError('Please fill in all fields');
+                    return;
                 }
-            } catch (error) {
-                errorMessage.textContent = 'An error occurred. Please try again.';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('username', username);
+                    formData.append('password', password);
+
+                    const response = await fetch('/token', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        // Store token and role
+                        localStorage.setItem('hms_token', result.access_token);
+                        localStorage.setItem('hms_role', role);
+                        localStorage.setItem('hms_username', username);
+                        
+                        // Redirect based on role
+                        if (role === 'NURSE') {
+                            window.location.href = '/vitals';
+                        } else if (role === 'DOCTOR') {
+                            window.location.href = '/queue';
+                        } else if (role === 'RECEPTION') {
+                            window.location.href = '/dashboard';
+                        } else {
+                            window.location.href = '/dashboard';
+                        }
+                    } else {
+                        showError(result.detail || 'Login failed');
+                    }
+                } catch (error) {
+                    showError('Network error. Please try again.');
+                }
+            });
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 5000);
             }
         });
     </script>

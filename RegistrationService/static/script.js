@@ -1,8 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('hms_token');
+    const role = localStorage.getItem('hms_role');
+    const username = localStorage.getItem('hms_username');
+    
     if (!token) {
         window.location.href = '/';
         return;
+    }
+    
+    // Redirect based on role
+    if (role === 'NURSE') {
+        window.location.href = '/vitals';
+        return;
+    } else if (role === 'DOCTOR') {
+        window.location.href = '/queue';
+        return;
+    }
+
+    // Update user info in header
+    const userNameElement = document.getElementById('user-name');
+    if (userNameElement) {
+        userNameElement.textContent = `Welcome, ${username} (${role})`;
     }
 
     const registerForm = document.getElementById('register-form');
@@ -13,12 +31,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('logout-btn');
     const navLinks = document.querySelectorAll('.nav-link');
     const contentSections = document.querySelectorAll('.content-section');
+    const statsContainer = document.getElementById('stats-container');
 
     const { jsPDF } = window.jspdf;
 
-    logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('hms_token');
-        window.location.href = '/';
+    // Handle logout button (delegated event listener)
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'logout-btn') {
+            localStorage.removeItem('hms_token');
+            localStorage.removeItem('hms_role');
+            localStorage.removeItem('hms_username');
+            window.location.href = '/';
+        }
     });
 
     const activateSection = (targetId) => {
@@ -47,6 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
         activateNavLink(defaultNavLink);
     }
 
+    // Load dashboard statistics
+    loadDashboardStats();
+    loadPatients();
+
     const showNotification = (message, type) => {
         notificationArea.textContent = message;
         notificationArea.className = `notification ${type}`;
@@ -71,12 +99,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     registerForm.addEventListener('submit', async function (e) {
         e.preventDefault();
+        
+        // Validate required fields
+        const firstName = document.getElementById('first_name').value.trim();
+        const lastName = document.getElementById('last_name').value.trim();
+        const dob = document.getElementById('dob').value;
+        const contactNumber = document.getElementById('contact_number').value.trim();
+        const address = document.getElementById('address').value.trim();
+        
+        if (!firstName || !lastName || !dob || !contactNumber || !address) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+        
         const patient = {
-            first_name: document.getElementById('first_name').value,
-            last_name: document.getElementById('last_name').value,
-            dob: document.getElementById('dob').value,
-            contact_number: document.getElementById('contact_number').value,
-            address: document.getElementById('address').value,
+            first_name: firstName,
+            last_name: lastName,
+            dob: dob,
+            contact_number: contactNumber,
+            address: address,
         };
 
         try {
@@ -85,11 +126,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(patient),
             });
+            
             const result = await response.json();
             responseArea.textContent = JSON.stringify(result, null, 2);
 
             if (response.ok) {
-                showNotification('Patient registered successfully!', 'success');
+                showNotification(`Patient registered successfully! Patient ID: ${result.patient_uid}`, 'success');
                 document.getElementById('patient_uid').value = result.patient_uid;
                 registerForm.reset();
             } else {
@@ -173,5 +215,68 @@ document.addEventListener('DOMContentLoaded', () => {
         doc.text(`Queue Token: ${appointment.queue_token}`, 20, 90);
 
         doc.save(`appointment_${appointment.id}.pdf`);
+    }
+
+    async function loadDashboardStats() {
+        try {
+            const response = await authenticatedFetch('/api/v1/dashboard/stats');
+            const stats = await response.json();
+            
+            if (response.ok) {
+                statsContainer.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Total Patients</h3>
+                            <p>${stats.total_patients}</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Today's Appointments</h3>
+                            <p>${stats.today_appointments}</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Pending Queue</h3>
+                            <p>${stats.pending_queue}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                statsContainer.innerHTML = '<p>Error loading statistics.</p>';
+            }
+        } catch (error) {
+            statsContainer.innerHTML = '<p>Error loading statistics.</p>';
+        }
+    }
+
+    async function loadPatients() {
+        try {
+            const response = await authenticatedFetch('/api/v1/patients');
+            const patients = await response.json();
+            
+            if (response.ok) {
+                const patientsContainer = document.getElementById('patients-container');
+                if (patients.length === 0) {
+                    patientsContainer.innerHTML = '<p>No patients registered yet.</p>';
+                } else {
+                    patientsContainer.innerHTML = `
+                        <div class="patients-grid">
+                            ${patients.map(patient => `
+                                <div class="patient-card">
+                                    <h3>${patient.first_name} ${patient.last_name}</h3>
+                                    <p><strong>Patient ID:</strong> ${patient.patient_uid}</p>
+                                    <p><strong>DOB:</strong> ${new Date(patient.dob).toLocaleDateString()}</p>
+                                    <p><strong>Contact:</strong> ${patient.contact_number}</p>
+                                    <p><strong>Address:</strong> ${patient.address}</p>
+                                    <p><strong>Registered:</strong> ${new Date(patient.created_at).toLocaleString()}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            } else {
+                document.getElementById('patients-container').innerHTML = '<p>Error loading patients.</p>';
+            }
+        } catch (error) {
+            document.getElementById('patients-container').innerHTML = '<p>Error loading patients.</p>';
+        }
     }
 });

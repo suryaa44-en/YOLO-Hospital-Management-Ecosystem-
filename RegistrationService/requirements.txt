@@ -1,10 +1,11 @@
 fastapi
 uvicorn
-sqlmodel
-psycopg2-binary
+motor
+pymongo
 python-dotenv
-alembic
 passlib==1.7.4
 bcrypt==3.2.0
 python-jose[cryptography]
 python-multipart
+pydantic
+bson

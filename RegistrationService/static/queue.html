@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Management - Doctor Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #2c3e50;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: #34495e;
+            color: white;
+            padding: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .queue-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .queue-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+            margin-bottom: 1rem;
+        }
+
+        .queue-item.completed {
+            border-left-color: #27ae60;
+            background: #d5f4e6;
+        }
+
+        .queue-item.in-progress {
+            border-left-color: #f39c12;
+            background: #fef5e7;
+        }
+
+        .queue-item h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .queue-item p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .notification.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .notification.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 4px solid #34495e;
+        }
+
+        .stat-card h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .stat-card p {
+            color: #7f8c8d;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem auto;
+                padding: 0 0.5rem;
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Queue Management</h1>
+        <div class="user-info">
+            <span id="user-name">Welcome, Doctor</span>
+            <button id="logout-btn" class="logout-btn">Logout</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="notification-area" class="notification"></div>
+
+        <div class="card">
+            <div class="card-header">Doctor Queue</div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="doctor_id">Doctor ID</label>
+                    <input type="text" id="doctor_id" placeholder="Enter Doctor ID (e.g., DOC001)" required>
+                </div>
+                <button id="load-queue-btn" class="btn">Load Queue</button>
+                <button id="print-queue-btn" class="btn btn-success">Print Queue</button>
+                
+                <div id="queue-stats" class="stats-grid" style="display: none;">
+                    <!-- Stats will be loaded here -->
+                </div>
+                
+                <div id="queue-display" class="queue-grid" style="display: none;">
+                    <!-- Queue items will be displayed here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">Update Queue Status</div>
+            <div class="card-body">
+                <form id="update-status-form">
+                    <div class="form-group">
+                        <label for="queue_id">Queue ID</label>
+                        <input type="text" id="queue_id" placeholder="Enter Queue ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">New Status</label>
+                        <select id="status" required>
+                            <option value="">Select Status</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="IN_PROGRESS">In Progress</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Update Status</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('hms_token');
+            const role = localStorage.getItem('hms_role');
+            const username = localStorage.getItem('hms_username');
+            
+            if (!token || role !== 'DOCTOR') {
+                window.location.href = '/';
+                return;
+            }
+
+            // Update user info
+            const userNameElement = document.getElementById('user-name');
+            if (userNameElement) {
+                userNameElement.textContent = `Welcome, ${username} (${role})`;
+            }
+
+            // Handle logout
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.removeItem('hms_token');
+                localStorage.removeItem('hms_role');
+                localStorage.removeItem('hms_username');
+                window.location.href = '/';
+            });
+
+            // Handle queue loading
+            document.getElementById('load-queue-btn').addEventListener('click', async () => {
+                const doctorId = document.getElementById('doctor_id').value;
+                if (!doctorId) {
+                    showNotification('Please enter a Doctor ID', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/v1/queue/doctor/${doctorId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        displayQueue(result);
+                        showNotification('Queue loaded successfully!', 'success');
+                    } else {
+                        showNotification(result.detail || 'Error loading queue', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Network error. Please try again.', 'error');
+                }
+            });
+
+            // Handle queue printing
+            document.getElementById('print-queue-btn').addEventListener('click', async () => {
+                const doctorId = document.getElementById('doctor_id').value;
+                if (!doctorId) {
+                    showNotification('Please enter a Doctor ID', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/v1/doctors/${doctorId}/queue/print`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `doctor_${doctorId}_queue.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                        showNotification('Queue printed successfully!', 'success');
+                    } else {
+                        const result = await response.json();
+                        showNotification(result.detail || 'Error printing queue', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Network error. Please try again.', 'error');
+                }
+            });
+
+            // Handle status update
+            document.getElementById('update-status-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const queueId = document.getElementById('queue_id').value;
+                const status = document.getElementById('status').value;
+                
+                try {
+                    const response = await fetch(`/api/v1/queue/${queueId}/update`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ status })
+                    });
+
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        showNotification('Status updated successfully!', 'success');
+                        document.getElementById('update-status-form').reset();
+                    } else {
+                        showNotification(result.detail || 'Error updating status', 'error');
+                    }
+                } catch (error) {
+                    showNotification('Network error. Please try again.', 'error');
+                }
+            });
+
+            function showNotification(message, type) {
+                const notification = document.getElementById('notification-area');
+                notification.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.style.display = 'block';
+                
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 5000);
+            }
+
+            function displayQueue(queue) {
+                const container = document.getElementById('queue-display');
+                const statsContainer = document.getElementById('queue-stats');
+                
+                container.style.display = 'block';
+                statsContainer.style.display = 'grid';
+                
+                if (queue.length === 0) {
+                    container.innerHTML = '<p>No patients in queue.</p>';
+                    statsContainer.innerHTML = `
+                        <div class="stat-card">
+                            <h3>Total Patients</h3>
+                            <p>0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Pending</h3>
+                            <p>0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>In Progress</h3>
+                            <p>0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Completed</h3>
+                            <p>0</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Calculate stats
+                const stats = {
+                    total: queue.length,
+                    pending: queue.filter(q => q.status === 'PENDING').length,
+                    inProgress: queue.filter(q => q.status === 'IN_PROGRESS').length,
+                    completed: queue.filter(q => q.status === 'COMPLETED').length
+                };
+
+                statsContainer.innerHTML = `
+                    <div class="stat-card">
+                        <h3>Total Patients</h3>
+                        <p>${stats.total}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Pending</h3>
+                        <p>${stats.pending}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>In Progress</h3>
+                        <p>${stats.inProgress}</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Completed</h3>
+                        <p>${stats.completed}</p>
+                    </div>
+                `;
+
+                container.innerHTML = queue.map(item => `
+                    <div class="queue-item ${item.status.toLowerCase().replace('_', '-')}">
+                        <h4>Patient ID: ${item.patient_uid}</h4>
+                        <p><strong>Queue Token:</strong> ${item.queue_token}</p>
+                        <p><strong>Status:</strong> ${item.status}</p>
+                        <p><strong>Appointment Time:</strong> ${new Date(item.appointment_time).toLocaleString()}</p>
+                        <p><strong>Priority:</strong> ${item.priority}</p>
+                        <p><strong>Created:</strong> ${new Date(item.created_at).toLocaleString()}</p>
+                    </div>
+                `).join('');
+            }
+        });
+    </script>
+</body>
+</html>
